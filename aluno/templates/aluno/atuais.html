@@ -1,0 +1,134 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Painel
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-sm-10 col-md-10">
+            Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+            <small>
+                ( <a href="{% url 'aluno:todas' %}"> Todas </a>
+                | <a href="{% url 'aluno:publica' %}"> Públicas </a>
+                | <a href="{% url 'professor:ementa' %}"> Ementa </a>
+                | <a href="{% url 'painel:sair' %}"> Sair </a> )
+            </small>
+
+            <hr>
+        </div>
+        </div>
+    </div> <!-- /container 2-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                Lista de suas tarefas disponíveis:
+                <div class="dtree">
+                   <small><a href="javascript: d.openAll();">Expandir tudo</a> | <a href="javascript: d.closeAll();">Contrair tudo</a></small>
+                  <script type="text/javascript">
+                    d = new dTree('d');
+                    d.add(0,-1,'{{user.last_name}}');
+                    {% for turma in turmas %}
+                        {% if turma.ativo %}
+                            d.add('{{turma.conhecimento.instituicao.id}}','0','{{turma.conhecimento.instituicao.nome}}');
+                            d.add('{{turma.conhecimento.usuario.id}}','{{turma.conhecimento.instituicao.id}}','{{turma.conhecimento.usuario.last_name}}');
+                            d.add('{{turma.conhecimento.id}}','{{turma.conhecimento.usuario.id}}','{{turma.conhecimento.nome}}');
+                            d.add('{{turma.id}}','{{turma.conhecimento.id}}','{{turma.nome}}');
+                        {% endif %}
+                    {% endfor %}
+
+
+                    {% for avaliacao in avaliacoes %}
+                        {% if avaliacao.ativo and avaliacao.turma.ativo %}
+                            d.add('{{avaliacao.id}}','{{avaliacao.turma.id}}','{{avaliacao.nome}}');
+                            d.add('{{avaliacao.id}}_ativo','{{avaliacao.id}}','Ativa: {{avaliacao.ativo}}');
+                            d.add("{{avaliacao.id}}_inicio","{{avaliacao.id}}","Inicio: {{avaliacao.inicio|date:'d-m-Y H:i'}}");
+                            d.add("{{avaliacao.id}}_fim","{{avaliacao.id}}","Fim: {{avaliacao.fim|date:'d-m-Y H:i'}}");
+                            d.add('{{avaliacao.id}}_privada','{{avaliacao.id}}','Privada: {{avaliacao.privada}}');
+                            d.add('{{avaliacao.id}}_nota','{{avaliacao.id}}','Nota: {{avaliacao.nota}}');
+                        {% endif %}
+                    {% endfor %}
+
+
+                    {% for aplicada in aplicadas %}
+                        {% if aplicada.ativo and aplicada.questao.ativo and aplicada.questao.problema.ativo %}
+                            {% for status in aplicada.status.all %}
+                                {% if status.ativo %}
+                                    d.add("{{aplicada.id}}","{{aplicada.questao.avaliacao.id}}","Tarefa {{aplicada.questao.numero}}: {{aplicada.questao.problema.descricao}}. Tempo restante: {{status.tempo|date:'H:i'}}");
+                                    d.add("{{status.id}}_resolver","{{status.aplicada.id}}","Resolver: <a href={% url 'aluno:editar' aplicada.id %} title='Se clicar aqui inicia-se o tempo desta tarefa'> [clique para resolver] </a>");
+                                {% else %}
+                                    d.add("{{aplicada.id}}","{{aplicada.questao.avaliacao.id}}","Tarefa {{aplicada.questao.numero}}: {{aplicada.questao.problema.descricao}}");
+                                {% endif %}
+                                    d.add("{{status.id}}_iniciou","{{status.aplicada.id}}","Status iniciou: {{status.iniciou|date:'d-m-Y H:i'}}");
+                                    d.add("{{status.id}}_tempo","{{status.aplicada.id}}","Status Tempo restante: {{status.tempo|date:'H:i'}}");
+                                    d.add('{{status.id}}_tentativa','{{status.aplicada.id}}','Status tentou: {{status.tentativa}}');
+                                    d.add('{{status.id}}_ativo','{{status.aplicada.id}}','Status ativo: {{status.ativo}}');
+                            {% endfor %}
+                            d.add('{{aplicada.id}}_questaoativo','{{aplicada.id}}','Questão ativa: {{aplicada.questao.ativo}}');
+                            d.add('{{aplicada.id}}_questaotentativa','{{aplicada.id}}','Questão tentativas: {{aplicada.questao.tentativa}}');
+                            d.add("{{aplicada.id}}_questaotempo","{{aplicada.id}}","Questão Tempo disponível: {{aplicada.questao.tempo|date:'H:i'}}");
+                            d.add('{{aplicada.id}}_questaonota','{{aplicada.id}}','Questão nota: {{aplicada.questao.nota}}');
+                            {% for solucao in aplicada.solucoes_aplicada.all %}
+                                {% if solucao.ativo %}
+                                    d.add('{{solucao.id}}','{{solucao.aplicada.id}}','Nota pergunta: {{solucao.resposta.letra}}={{solucao.nota}}');
+                                {% endif %}
+                            {% endfor %}
+                            {% for anexo in aplicada.anexos_aplicada.all %}
+                                {% if anexo.ativo %}
+                                    d.add('{{anexo.id}}','{{anexo.aplicada.id}}','Nota anexo: {{anexo.arquivo.letra}}={{anexo.nota}}');
+                                {% endif %}
+                            {% endfor %}
+                            {% for relatorio in aplicada.relatorios_aplicada.all %}
+                                {% if relatorio.ativo %}
+                                    d.add('{{relatorio.id}}','{{relatorio.aplicada.id}}','Nota relatorio: {{relatorio.texto.letra}}={{relatorio.nota}}');
+                                {% endif %}
+                            {% endfor %}
+
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for aplicado in aplicados %}
+                        {% if aplicado.ativo and aplicado.algoritmo.ativo and aplicado.algoritmo.programa.ativo %}
+                            {% for status in aplicado.status_aplicado.all %}
+                                {% if status.ativo %}
+                                    d.add("{{aplicado.id}}","{{aplicado.algoritmo.avaliacao.id}}","Algoritmo {{aplicado.algoritmo.numero}}: {{aplicado.algoritmo.programa.descricao}}  | {{status.tempo|date:'H:i'}} | <a href={% url 'aluno:editaralgoritmo' aplicado.id %} title='Se clicar aqui para editar e iniciar o tempo deste algoritmo'> [editar] </a>");
+                                {% else %}
+                                    d.add("{{aplicado.id}}","{{aplicado.algoritmo.avaliacao.id}}","Algoritmo {{aplicado.algoritmo.numero}}: {{aplicado.algoritmo.programa.descricao}}");
+                                {% endif %}
+                                    d.add("{{status.id}}_iniciou","{{status.aplicado.id}}","Iniciou: {{status.iniciou|date:'d-m-Y H:i'}}");
+                                    d.add("{{status.id}}_tempo","{{status.aplicado.id}}","Tempo restante: {{status.tempo|date:'H:i'}}");
+                                    d.add('{{status.id}}_ativo','{{status.aplicado.id}}','Status ativa: {{status.ativo}}');
+                            {% endfor %}
+                            d.add('{{aplicado.id}}_algoritmoativo','{{aplicado.id}}','Questão ativa: {{aplicado.algoritmo.ativo}}');
+                            d.add("{{aplicado.id}}_algoritmotempo","{{aplicado.id}}","Tempo inicial: {{aplicado.algoritmo.tempo|date:'H:i'}}");
+                            d.add('{{aplicado.id}}_algoritmonota','{{aplicado.id}}','Nota: {{aplicado.algoritmo.nota}}');
+                            {% for codigo in aplicado.codigos_aplicado.all %}
+                                {% if codigo.ativo %}
+                                    d.add('{{codigo.id}}','{{codigo.aplicado.id}}','Nota {{codigo.proposta.arquivo}}={{codigo.nota}}');
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+
+
+                    document.write(d);
+                  </script>
+                </div>
+
+            </div>
+        </div>
+    </div> <!-- /container -->
+
+    {%else%}
+    </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+{%endblock%}

@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="pt-br">
+    <head>
+
+        {# Load the tag library #}
+        {%load static from staticfiles %}
+
+
+        <!-- Meta tags Obrigatórias -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- CSSs -->
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+        <!-- CSS dtree arvore de itens e subitens -->
+        <link rel="stylesheet" href="{% static "painel/dtree/dtree.css"%}">
+        <link rel="stylesheet" href="{% static "painel/CodeMirror/lib/codemirror.css"%}">
+
+        <!-- CSS dtree arvore de itens e subitens -->
+        <link rel="stylesheet" type="text/css" href="{% static "painel/jquery.datetimepicker.css"%}"/>
+        <!-- CSS Icones -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+        <!-- javascript -->
+        <!-- jQuery primeiro, depois Popper.js, depois Bootstrap JS, etc -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="{% static "painel/dtree/dtree.js"%}"></script>
+        <script type="text/javascript" src="{% static "painel/CodeMirror/lib/codemirror.js"%}"></script>
+        <script type="text/javascript" src="{% static "painel/CodeMirror/mode/python/python.js"%}"></script>
+        <script type="text/javascript" src="{% static "painel/pdfobject.js"%}"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+          config: ["MMLorHTML.js"],
+          jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+          extensions: ["MathMenu.js", "MathZoom.js"]
+        });
+        </script>
+
+        <style>
+          .CodeMirror { height: auto; border: 1px solid #ddd; }
+          .CodeMirror pre { padding-left: 7px; line-height: 1.25; }
+        </style>
+        <title>
+            {% block titulo%} {%endblock%}
+        </title>
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123146317-1"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'UA-123146317-1');
+        </script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+    </head>
+    <body>
+        {% block corpo %}
+        {% endblock %}
+    </body>
+
+    <script type="text/javascript">
+        $("table").addClass("table table-sm table-hover table-bordered table-striped");
+        $("table").css({"margin":"0px auto","width":"auto"});
+    </script>
+
+
+            <script src="{% static "painel/jquery.datetimepicker.js"%}"></script>
+            <script type="text/javascript">
+            $('#id_inicio').datetimepicker({
+                format:'Y-m-d H:i',
+            	 lang:'pt-BR',
+                 //defaultDate: new Date(2019,09,23,21,00,00),
+                 {% if tempo %}
+                     defaultDate: new Date("{{tempo.inicio|date:'m/d/Y'}}"),
+                     defaultTime: "{{tempo.inicio|date:'H:i'}}",
+                 {% endif %}
+             });
+            $('#id_fim').datetimepicker({
+                format:'Y-m-d H:i',
+            	 lang:'pt-BR',
+                 {% if tempo %}
+                     defaultDate: new Date("{{tempo.fim|date:'m/d/Y'}}"),
+                     defaultTime: "{{tempo.fim|date:'H:i'}}",
+                 {% endif %}
+            });
+            $('#id_tempo').datetimepicker({
+                datepicker:false,
+            	lang:'pt-BR',
+                format:'H:i',
+                defaultTime:'02:00',
+            });
+            </script>
+    <script>
+    //Copiar e colar para area de transferencia qq coisa dentro do div
+    //<button type="button" class="btn btn-outline-success btn-sm" onclick="CopyToClipboard('Table2')">Clique aqui e cole (CRTL-V) na planilha</button>
+    //<div id="Table2">
+    //<table>...</table>
+    //</div> <!-- copy table-->
+    function CopyToClipboard(containerid) {
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(containerid));
+        range.select().createTextRange();
+        document.execCommand("copy");
+
+    } else if (window.getSelection) {
+        var range = document.createRange();
+         range.selectNode(document.getElementById(containerid));
+         window.getSelection().addRange(range);
+         document.execCommand("copy");
+         alert("Conteúdo copiado. Cole na planilha com CTRL-V.")
+         window.location.reload(false);
+    }}
+    </script>
+
+</html>

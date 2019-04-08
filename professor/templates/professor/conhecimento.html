@@ -1,0 +1,101 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:acoes' %}"> Ações </a> |
+                   <a href="{% url 'painel:sair' %}"> Sair </a> )                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        <!-- Gerenciar Conhecimentos e Turmas: -->
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Gerenciar Conhecimentos e Turmas:</h3>
+                Conhecimento/Disciplina/Curso | <a href={% url 'instituicao:conhecimentonovo' %} title='inserir novo Conhecimento/Disciplina/Curso'> <i class='fas fa-plus'></i></a>
+                <div class="dtree">
+                   <small><a href="javascript: d.openAll();">Expandir tudo</a> | <a href="javascript: d.closeAll();">Contrair tudo</a></small>
+                   <script type="text/javascript">
+                    d = new dTree('d');
+                    d.add(0,-1,'');
+                    {% for conhecimento in conhecimentos %}
+                        d.add('{{conhecimento.instituicao.id}}','0','{{conhecimento.instituicao.nome}}');
+                        // d.add('{{conhecimento.instituicao.id}}_id','0','Instituicao id: {{conhecimento.instituicao.id}}');
+                        d.add("{{conhecimento.usuario.id}}","{{conhecimento.instituicao.id}}","{{conhecimento.usuario.last_name}} ");
+                        // d.add("{{conhecimento.usuario.id}}_id","{{conhecimento.instituicao.id}}","Usuario id: {{conhecimento.usuario.id}}");
+                        d.add("{{conhecimento.id}}","{{conhecimento.usuario.id}}","{{conhecimento.nome}} |  <a href={% url 'instituicao:conhecimentoeditar' conhecimento.id %} title='Editar este Conhecimento/Disciplina/Curso'> <i class='fas fa-pencil-alt'></i></a> | <a href={% url 'professor:ementaeditar' conhecimento.id %} title='Editar ementa deste Conhecimento/Disciplina/Curso'> <i class='fas fa-chalkboard-teacher'></i></a> | <a href={% url 'instituicao:turmanovo' conhecimento.id %} title='nova turma deste Conhecimento/Disciplina/Curso' > <i class='fas fa-plus'></i></a>");
+                        // d.add("{{conhecimento.id}}_id","{{conhecimento.id}}","Conhecimento id: {{conhecimento.id}}");
+                        d.add("{{conhecimento.id}}_ativo","{{conhecimento.id}}","Ativo: {{conhecimento.ativo}}");
+                        d.add("{{conhecimento.id}}_inicio","{{conhecimento.id}}","Inicio: {{conhecimento.inicio|date:'d-m-Y H:i'}}");
+                        d.add("{{conhecimento.id}}_fim","{{conhecimento.id}}","Fim: {{conhecimento.fim|date:'d-m-Y H:i'}}");
+                        {% for turma in conhecimento.turmas.all %}
+                            d.add("{{turma.id}}","{{turma.conhecimento.id}}","{{turma.nome}} <a href={% url 'instituicao:turmaeditar' turma.id %} title='Editar esta turma'> <i class='fas fa-pencil-alt'></i></a> ");
+                            // d.add("{{turma.id}}_id","{{turma.id}}","Turma id: {{turma.id}}");
+                            {%if turma.ativo %}
+                                d.add("{{turma.id}}_ativo","{{turma.id}}","Ativo: {{turma.ativo}}");
+                                d.add("{{turma.id}}_inicio","{{turma.id}}","Inicio: {{turma.inicio|date:'d-m-Y H:i'}}");
+                                d.add("{{turma.id}}_fim","{{turma.id}}","Fim: {{turma.fim|date:'d-m-Y H:i'}}");
+                                d.add("{{turma.id}}_numero","{{turma.id}}","Qde de questões/algoritmos: {{turma.questao}}");
+                                d.add("{{turma.id}}_alunos","{{turma.id}}","Alunos <a href={% url 'painel:alunonovo' turma.id %} title='Inserir novos alunos'> <i class='fas fa-plus'></i></a> | <a href={% url 'painel:alunoeditar' turma.id %} title='Editar meus alunos'> <i class='fas fa-pencil-alt'></i></a>");
+                                d.add("{{turma.id}}_avaliacoes","{{turma.id}}","Avaliações <a href={% url 'tarefa:avaliacaonovo' turma.id %} title='nova avaliação'> <i class='fas fa-plus'></i></a>");
+                                {% for aluno in turma.alunos.all %}
+                                    {% if aluno.is_active %}
+                                    d.add("{{aluno.id}}_{{turma.id}}","{{turma.id}}_alunos","{{aluno.last_name}} | {{aluno.username}} | <a href={% url 'painel:senhareset' aluno.id %} title='reset senha para este aluno'> <i class='fas fa-key'></i></a> | <a href={% url 'professor:alunotarefas' turma.id aluno.id %} title='ver tarefas deste aluno'> <i class='fas fa-eye'></i></a>");
+                                    {% endif %}
+                                {% endfor %}
+                                {% for avaliacao in turma.avaliacoes.all %}
+                                    d.add("{{avaliacao.id}}","{{turma.id}}_avaliacoes","{{avaliacao.nome}} | Fim: {{avaliacao.fim|date:'d-m-Y H:i'}} <a href={% url 'tarefa:avaliacaoeditar' avaliacao.id %} title='Editar esta avaliação'> <i class='fas fa-pencil-alt'></i></a>")
+                                    // d.add("{{avaliacao.id}}_id","{{avaliacao.id}}","Avaliacao id: {{avaliacao.id}}");
+                                    d.add('{{avaliacao.id}}_ativa','{{avaliacao.id}}','Ativo: {{avaliacao.ativo}}');
+                                    d.add("{{avaliacao.id}}_inicio","{{avaliacao.id}}","Inicio: {{avaliacao.inicio|date:'d-m-Y H:i'}}");
+                                    d.add("{{avaliacao.id}}_fim","{{avaliacao.id}}","Fim: {{avaliacao.fim|date:'d-m-Y H:i'}}");
+                                    d.add("{{avaliacao.id}}_aplicar","{{avaliacao.id}}","Aplicar avaliação <a href={% url 'tarefa:avaliacaoaplicar1' avaliacao.id %} title='Aplicar esta avaliação aos alunos desta turma.'><i class='far fa-thumbs-up'></i></a>");
+                                    d.add('{{avaliacao.id}}_privada','{{avaliacao.id}}','Privada: {{avaliacao.privada}}');
+                                    d.add('{{avaliacao.id}}_nota','{{avaliacao.id}}','Nota: {{avaliacao.nota}}');
+                                    d.add("{{avaliacao.id}}_questoes","{{avaliacao.id}}","Questões e Algoritmos | <a href={% url 'tarefa:algoritmonovo' avaliacao.id %} title='novo algoritmo nesta avaliação'> <i class='fas fa-laptop'></i></a> : <a href={% url 'tarefa:questaonovo' avaliacao.id %}  title='nova questão nesta avaliação'> <i class='fas fa-calculator'></i></a> ");
+                                    {% for questao in avaliacao.questoes.all %}
+                                        d.add("{{questao.id}}","{{avaliacao.id}}_questoes","Tarefa: {{questao.numero}} | {{questao.problema.referencia}}: {{questao.problema.descricao}}  | <a href={% url 'tarefa:questaoeditar' questao.id %} title='Editar esta questao'> <i class='fas fa-pencil-alt'></i></a> | <a href={% url 'tarefa:anexocorrigir1' questao.id %} title='Corrigir Anexo desta questão para todos os alunos'> <i class='fas fa-check'></i><i class='fas fa-chart-line'></i></a> | <a href={% url 'tarefa:relatoriocorrigir1' questao.id %} title='Corrigir relatório desta questão para todos os alunos'> <i class='fas fa-check'></i><i class='fas fa-book'></i></a> ");
+                                        d.add("{{questao.id}}_ativo","{{questao.id}}","Ativo:{{questao.ativo}}");
+                                        d.add("{{questao.id}}_valoresaleatorios","{{questao.id}}","Valores aleatórios <a href={% url 'tarefa:valoresaleatoriosver' questao.id %} title='Ver valores aleatórios desta questao'> <i class='fas fa-eye'></i></a>");
+                                        d.add("{{questao.id}}_tentativa","{{questao.id}}","Tentativa:{{questao.tentativa}}");
+                                        d.add("{{questao.id}}_tempo","{{questao.id}}","Tempo:{{questao.tempo|time:'H:i'}}");
+                                        d.add("{{questao.id}}_nota","{{questao.id}}","Nota:{{questao.nota}}");
+                                    {% endfor %}
+                                    {% for algoritmo in avaliacao.algoritmos.all %}
+                                        d.add("{{algoritmo.id}}","{{avaliacao.id}}_questoes","Programa: {{algoritmo.numero}} | {{algoritmo.programa.referencia}}: {{algoritmo.programa.descricao}} | <a href={% url 'tarefa:algoritmoeditar' algoritmo.id %} title='Editar esta algoritmo'> <i class='fas fa-pencil-alt'></i></a> | <a href={% url 'tarefa:codigocorrigir1' algoritmo.id %} title='Corrigir codigo deste algoritmo para todos os alunos'>  <i class='fas fa-check'></i><i class='fas fa-laptop'></i></a> ");
+                                        d.add("{{algoritmo.id}}_ativo","{{algoritmo.id}}","Ativo:{{algoritmo.ativo}}");
+                                        d.add("{{algoritmo.id}}_tempo","{{algoritmo.id}}","Tempo:{{algoritmo.tempo|time:'H:i'}}");
+                                        d.add("{{algoritmo.id}}_nota","{{algoritmo.id}}","Nota:{{algoritmo.nota}}");
+                                    {% endfor %}
+                                {% endfor %}
+                                d.add("{{turma.id}}_notas","{{turma.id}}","Notas <a href={% url 'instituicao:notas' turma.id %} title='Ver as notas desta turma'> <i class='fas fa-eye'></i></a>");
+                            {%endif%}
+                        {% endfor %}
+                    {% endfor %}
+                    document.write(d);
+                    </script>
+                </div>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+    {%else%}
+        </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+{%endblock%}

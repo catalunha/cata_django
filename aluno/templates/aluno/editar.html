@@ -1,0 +1,235 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Tarefa
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    <SCRIPT language=JavaScript>
+    var sDays = 0;
+    var sHors = {{status.tempo.hour}};
+    var sMins = {{status.tempo.minute}};
+    var sSecs = 0;
+    function getSecs(){
+      sSecs--;
+      if(sSecs<0){
+        sSecs=59;
+        sMins--;
+        if(sMins<=9)
+          sMins="0"+sMins;
+      }
+      if(sMins=="0-1"){
+        sMins=59;
+        sHors--;
+        if(sHors<=9)
+          sHors="0"+sHors;
+      }
+      if(sHors=="0-1"){
+        sHors=24;
+        sDays--;
+        if(sDays<=9)
+          sDays="0"+sDays;
+      }
+      if(sSecs<=9)
+        sSecs="0"+sSecs;
+      if(sDays=="0-1"){
+        sDays="00";
+        sHors="00";
+        sMins="00";
+        sSecs="00";
+        <!--clock1.innerHTML=sDays+"<font color=#000000>d </font> "+sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";-->
+        clock1.innerHTML=sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";
+      }else{
+        <!--clock1.innerHTML=sDays+"<font color=#000000>d </font> "+sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";-->
+        clock1.innerHTML=sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";
+        setTimeout('getSecs()',1000);
+      }
+    }
+    </SCRIPT>
+    {%if user.is_authenticated %}
+
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-sm-10 col-md-10">
+            Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+            <small>
+                ( <a href="{% url 'aluno:atuais' %}"> Atuais </a>
+                | <a href="{% url 'painel:sair' %}"> Sair </a> )
+            </small>
+
+            <hr>
+        </div>
+        </div>
+    </div> <!-- /container 2-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-8 col-md-10">
+                <small>
+                <ul class="list-unstyled">
+                    <li>Algumas informações importantes:</li>
+                    <ul>
+                        <li>Instituição: {{aplicada.questao.avaliacao.turma.conhecimento.instituicao.nome}}. Professor: {{aplicada.questao.avaliacao.turma.conhecimento.usuario.last_name}}. Curso: {{aplicada.questao.avaliacao.turma.conhecimento.nome}}. Turma: {{aplicada.questao.avaliacao.turma.nome}}. </li>
+                        <li>Avaliação: {{aplicada.questao.avaliacao.nome}}, Nota {{aplicada.questao.avaliacao.nota}}. Tarefa {{aplicada.questao.numero}}: {{aplicada.questao.problema.descricao}}, nota {{aplicada.questao.nota}}.</li>
+                        <li>Iniciada em {{status.iniciou|date:'d-m-Y H:i'}} com tempo total de {{aplicada.questao.tempo|date:'H:i'}}. Gastou {{status.tentativa}} de {{aplicada.questao.tentativa}} tentativas.</li>
+                    </ul>
+                </ul>
+                </small>
+                <hr>
+            </div>
+        </div>
+
+
+    <h5>Você tem <font color=#FF0000 size=4 face=arial><span id="clock1"></span><script>setTimeout('getSecs()',1000);</script></font> para desenvolver/responder o que pede a proposta:</h5>
+
+
+
+        <div class="row">
+            <div class="col-sm-8 col-md-10">
+                <div class="card">
+                  <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#propostatarefa" aria-expanded="true" aria-controls="propostatarefa">
+                        Proposta da tarefa
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="propostatarefa" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div class="card-body">
+                                <object data='/cata/media/{{aplicada.questao.problema.pdf}}'
+                                        type='application/pdf'
+                                        width='100%'
+                                        height='300px'>
+                                        <p class="bg-success">
+                                :-(((( SE VOCÊ ESTA LENDO ESTA MENSAGEM O SEU NAVEGADOR NÃO CONSEGUIU VISUALIZAR O PDF DA TAREFA. O PROBLEMA NÃO ESTA NO SISTEMA DE TAREFAS E SIM NO SEU NAVEGADOR DE INTERNET.</p>
+                                <p class="bg-success">  <a href="/cata/media/{{aplicada.questao.problema.pdf}}"  target="_blank"> CLIQUE AQUI PARA FAZER O DOWNLOAD DO ARQUIVO PDF COM A TAREFA PARA RESOLUÇÃO.</a></p>
+                              </object>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        {% if variaveisAleatorias %}
+        <div class="row">
+            <div class="col-sm-8 col-md-10">
+                <div class="card">
+                  <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#valoresalatorios" aria-expanded="true" aria-controls="valoresalatorios">
+                        Valores específicos:
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="valoresalatorios" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                      <div class="card-body">
+                          {% for variavel in variaveisAleatorias %}
+                              {{variavel.nome}} = {{variavel.valor}}</br>
+                          {% endfor %}
+                      </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+        <form action="{% url 'aluno:editar' aplicada.id %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
+
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                        {% for solucao in aplicada.solucoes_aplicada.all %}
+                            {% if solucao.ativo %}
+                                <div class="card">
+                                  <div class="card-header" id="headingOne">
+                                    <h5 class="mb-0">
+                                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#arearesposta_{{solucao.resposta.letra}}" aria-expanded="true" aria-controls="arearesposta_{{solucao.resposta.letra}}">
+                                        {% if solucao.nota %} * {% endif %}
+                                        Resposta da letra {{solucao.resposta.letra}}:
+                                      </button>
+                                    </h5>
+                                  </div>
+                                  <div id="arearesposta_{{solucao.resposta.letra}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                      <input type="text"  class="form-control" id="aid"   name="resposta_{{solucao.resposta.letra}}" value="{{solucao.solucao}}">
+                                    </div>
+                                  </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                    {% for anexo in aplicada.anexos_aplicada.all %}
+                    {% if anexo.ativo %}
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#areaanexo_{{anexo.arquivo.letra}}" aria-expanded="true" aria-controls="areaanexo_{{anexo.arquivo.letra}}">
+                                    {% if anexo.nota %} * {% endif %}
+                                    Arquivo para a letra {{anexo.arquivo.letra}}:
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="areaanexo_{{anexo.arquivo.letra}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                            <div class="card-body">
+                                <input id="id_limparanexo_{{anexo.arquivo.letra}}" name="limparanexo_{{anexo.arquivo.letra}}" type="checkbox" /> <label for="asdas">Limpar: {{anexo.anexo}}</label>
+                                <input type="file" class="form-control" id="id_anexo_{{anexo.arquivo.letra}}"   name="anexo_{{anexo.arquivo.letra}}"  >
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                    {% for relatorio in aplicada.relatorios_aplicada.all %}
+                    {% if relatorio.ativo %}
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#arearelatorio_{{relatorio.texto.letra}}" aria-expanded="true" aria-controls="arearelatorio_{{relatorio.texto.letra}}">
+                                    {% if relatorio.nota %} * {% endif %}
+                                    Relatório da letra {{relatorio.texto.letra}}:
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="arearelatorio_{{relatorio.texto.letra}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                            <div class="card-body">
+                                <textarea class="form-control" id="id_relatorio_{{relatorio.texto.letra}}"   name="texto_{{relatorio.texto.letra}}" rows="5" >{{relatorio.relatorio}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                    <hr>
+                    <button type="submit" class="btn btn-success">
+                      SALVAR E CORRIGIR.<small>(Tentativa {{status.tentativa}} de {{aplicada.questao.tentativa}})</small>
+                    </button>
+                </div>
+            </div>
+
+        <form>
+
+    </div> <!-- /container -->
+    {%else%}
+    </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+
+{%endblock%}

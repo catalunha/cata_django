@@ -1,0 +1,95 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:acoes' %}"> Ações </a> |
+                   <a href="{% url 'painel:sair' %}"> Sair </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+
+        <!-- Gerenciar Índices e Situações -->
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Gerenciar Índices e Situações</h3>
+
+
+
+                <div class="dtree">
+                   <small><a href="javascript: e.openAll();">Expandir tudo</a> | <a href="javascript: e.closeAll();">Contrair tudo</a></small>
+                   <script type="text/javascript">
+                    e = new dTree('e');
+                    e.add(1,-1,'');
+                    {% for conhecimento in conhecimentos %}
+                        e.add('{{conhecimento.instituicao.id}}','1','{{conhecimento.instituicao.nome}}');
+                        // e.add('{{conhecimento.instituicao.id}}_id','1','Instituicao id: {{conhecimento.instituicao.id}}');
+                        e.add("{{conhecimento.usuario.id}}","{{conhecimento.instituicao.id}}","{{conhecimento.usuario.last_name}}");
+                        // e.add("{{conhecimento.usuario.id}}_id","{{conhecimento.instituicao.id}}","Usuario id: {{conhecimento.usuario.id}}");
+                        //e.add("{{conhecimento.id}}","{{conhecimento.usuario.id}}","{{conhecimento.nome}}");
+                        // e.add("{{conhecimento.id}}_id","{{conhecimento.usuario.id}}","Conhecimento id: {{conhecimento.id}}");
+
+                        {% for indice in conhecimento.indices.all %}
+                            {% if indice.superior is None%}
+                                e.add("{{indice.id}}","{{indice.conhecimento.usuario.id}}","{{indice.nome}} | <a href={% url 'situacao:indiceeditar' indice.id %} title='Editar este indice'> <i class='fas fa-pencil-alt'></i></a> | <a href={% url 'situacao:indicesubitem' indice.id %} title='Criar subitem (filho) deste'>  <i class='fas fa-indent'></i></a>");
+                            {% else %}
+                                e.add("{{indice.id}}","{{indice.superior.id}}","{{indice.nome}} | <a href={% url 'situacao:indiceeditar' indice.id %} title='Editar este indice'>  <i class='fas fa-pencil-alt'></i></a> | <a href={% url 'situacao:indiceitem' indice.id %} title='Criar item (irmão) deste'> <i class='fas fa-align-justify'></i></a> : <a href={% url 'situacao:indicesubitem' indice.id %} title='Criar subitem (filho) deste'> <i class='fas fa-indent'></i></a> | <a href={% url 'situacao:sobe' indice.id %} title='Subir este item'> <i class='fas fa-arrow-up'></i></a> : <a href={% url 'situacao:desce' indice.id %} title='Descer este item'> <i class='fas fa-arrow-down'></i></a> | <a href={% url 'situacao:programanovo' indice.id%} title='Inserir novo programa'> <i class='fas fa-laptop'></i></a> : <a href={% url 'situacao:problemanovo' indice.id%} title='Inserir nova situação/questão/tarefa'> <i class='fas fa-calculator'></i></a> ");
+                            {% endif %}
+                            {% for problema in indice.no_problema.all %}
+                                e.add("{{problema.id}}","{{indice.id}}","{{problema.referencia}}: {{problema.descricao}} | Uso:  {{problema.uso}} | V.R.A.T: {{problema.simulacoes.all.0.valores_aleatorios.count}}.{{problema.simulacoes.all.0.respostas.count}}.{{problema.simulacoes.all.0.arquivos.count}}.{{problema.simulacoes.all.0.textos.count}} | <a href='/cata/media/{{problema.pdf}}' title='Clique para ver pdf da questão'> <i class='fas fa-eye'></i></a> : <a href={% url 'situacao:problemaeditar' problema.id %} title='Editar esta situação'> <i class='fas fa-pencil-alt'></i></a>");
+                                // e.add("{{problema.id}}_id","{{problema.id}}","Problema id: {{problema.id}}");
+                                // e.add("{{problema.id}}_descricao","{{problema.id}}","Descrição: {{problema.descricao}}");
+                                e.add("{{problema.id}}_usos","{{problema.id}}","Usos: {{problema.usos}}");
+                                e.add("{{problema.id}}_ativo","{{problema.id}}","Ativo: {{problema.ativo}}");
+                                e.add("{{problema.id}}_simulacoes","{{problema.id}}","Simulações: {{problema.simulacoes.count}} <a href={% url 'situacao:simulacao' problema.id %} title='editar simulações para esta situacao'> <i class='fas fa-pencil-alt'></i></a>");
+                            {% endfor %}
+
+                            {% for programa in indice.nos_programas.all %}
+                                e.add("{{programa.id}}","{{indice.id}}","{{programa.referencia}}: {{programa.descricao}} | Usos:{{programa.uso}} | <a href='/cata/media/{{programa.pdf}}' title='Clique para ver pdf deste programa'> <i class='fas fa-eye'></i></a> : <a href={% url 'situacao:programaeditar' programa.id %} title='Editar este programa'> <i class='fas fa-pencil-alt'></i></a>");
+                                //e.add("{{programa.id}}_descricao","{{programa.id}}","Descrição: {{programa.descricao}}");
+                                //e.add("{{programa.id}}_ativo","{{programa.id}}","Ativo: {{programa.ativo}}");
+                                e.add("{{programa.id}}_usos","{{programa.id}}","Usos: {{programa.usos}}");
+                                e.add("{{programa.id}}_ativo","{{programa.id}}","Ativo: {{programa.ativo}}");
+                                {% for proposta in programa.propostas.all %}
+                                    e.add("{{proposta.id}}","{{programa.id}}","{{proposta.arquivo}} {{proposta.editado_em|date:'d-m-Y H:i'}} <a href={% url 'situacao:propostaeditar' proposta.id %} title='Clique para editar ou ver esta proposta'> <i class='fas fa-pencil-alt'></i></a>  ");
+                                {% endfor %}
+                                e.add("{{programa.id}}_testes","{{programa.id}}","Testes: {{programa.testes.count}} <a href={% url 'situacao:testenovo' programa.id %} title='nova um teste para este programa'> <i class='fas fa-plus'></i></a>");
+                                {% for teste in programa.testes.all %}
+                                    e.add("{{teste.id}}","{{programa.id}}_testes","{{teste.id}} : {{teste.editado_em|date:'d-m-Y H:i'}} <a href={% url 'situacao:testeeditar' teste.id %} title='Clique para editar ou ver este teste'> <i class='fas fa-pencil-alt'></i></a>  ");
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+
+
+                    {% endfor %}
+
+                    document.write(e);
+                    </script>
+                </div>
+
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+
+    {%else%}
+        </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+{%endblock%}

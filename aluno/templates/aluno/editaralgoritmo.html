@@ -1,0 +1,305 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Tarefa
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    <SCRIPT language=JavaScript>
+    var sDays = 0;
+    var sHors = {{status.tempo.hour}};
+    var sMins = {{status.tempo.minute}};
+    var sSecs = 0;
+    function getSecs(){
+      sSecs--;
+      if(sSecs<0){
+        sSecs=59;
+        sMins--;
+        if(sMins<=9)
+          sMins="0"+sMins;
+      }
+      if(sMins=="0-1"){
+        sMins=59;
+        sHors--;
+        if(sHors<=9)
+          sHors="0"+sHors;
+      }
+      if(sHors=="0-1"){
+        sHors=24;
+        sDays--;
+        if(sDays<=9)
+          sDays="0"+sDays;
+      }
+      if(sSecs<=9)
+        sSecs="0"+sSecs;
+      if(sDays=="0-1"){
+        sDays="00";
+        sHors="00";
+        sMins="00";
+        sSecs="00";
+        <!--clock1.innerHTML=sDays+"<font color=#000000>d </font> "+sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";-->
+        clock1.innerHTML=sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";
+      }else{
+        <!--clock1.innerHTML=sDays+"<font color=#000000>d </font> "+sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";-->
+        clock1.innerHTML=sHors+"<font color=#000000>h </font>"+sMins+"<font color=#000000>m </font>"+sSecs+"<font color=#000000>s</font>";
+        setTimeout('getSecs()',1000);
+      }
+    }
+    </SCRIPT>
+    {%if user.is_authenticated %}
+
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-sm-10 col-md-10">
+            Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+            <small>
+                ( <a href="{% url 'aluno:atuais' %}"> Atuais </a>
+                | <a href="{% url 'painel:sair' %}"> Sair </a> )
+            </small>
+
+            <hr>
+        </div>
+        </div>
+    </div> <!-- /container 2-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-8 col-md-10">
+                <small>
+                <ul class="list-unstyled">
+                    <li>Algumas informações importantes:</li>
+                    <ul>
+                      <li>Instituição: {{aplicado.algoritmo.avaliacao.turma.conhecimento.instituicao.nome}}. Professor: {{aplicado.algoritmo.avaliacao.turma.conhecimento.usuario.last_name}}. Curso: {{aplicado.algoritmo.avaliacao.turma.conhecimento.nome}}. Turma: {{aplicado.algoritmo.avaliacao.turma.nome}}. </li>
+                      <li>Avaliação: {{aplicado.algoritmo.avaliacao.nome}}, Nota {{aplicado.algoritmo.avaliacao.nota}}. Tarefa {{aplicado.algoritmo.numero}}: {{aplicado.algoritmo.problema.descricao}}, nota {{aplicado.algoritmo.nota}}.</li>
+                      <li>Iniciada em {{status.iniciou|date:'d-m-Y H:i'}} com tempo total de {{aplicado.algoritmo.tempo|date:'H:i'}}. Gastou {{status.tentativa}} de {{aplicado.algoritmo.tentativa}} tentativas.</li>
+
+                        <li>Instituição: {{aplicado.algoritmo.avaliacao.turma.conhecimento.instituicao.nome}}. Professor: {{aplicado.algoritmo.avaliacao.turma.conhecimento.usuario.last_name}}. Curso: {{aplicado.algoritmo.avaliacao.turma.conhecimento.nome}}. Turma: {{aplicado.algoritmo.avaliacao.turma.nome}}. <small>Para uso do sistema: [{{aplicado.id}}] </small></li>
+                        <li> Avaliação: {{aplicado.algoritmo.avaliacao.nome}}. Tarefa: {{aplicado.algoritmo.programa.descricao}}. Número {{aplicado.algoritmo.numero}}. Valor {{aplicado.algoritmo.nota}} ponto(s). </li>
+                        <li>Iniciada em {{status.iniciou|date:'d-m-Y H:i'}} e tempo de {{aplicado.algoritmo.tempo|date:'H:i'}} para desenvolvé-la.</li>
+                        <li>O tempo de resolução encerrará em: <font color=#FF0000 size=4 face=arial><span id="clock1"></span><script>setTimeout('getSecs()',1000);</script></font></li>
+                    </ul>
+                </ul>
+                </small>
+                <hr>
+            </div>
+        </div>
+
+
+        <h5>Você tem <font color=#FF0000 size=4 face=arial><span id="clock1"></span><script>setTimeout('getSecs()',1000);</script></font> para desenvolver/responder o que pede a proposta:</h5>
+
+
+
+        <div class="row">
+            <div class="col-sm-8 col-md-10">
+                <div class="card">
+                  <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#propostatarefa" aria-expanded="true" aria-controls="propostatarefa">
+                        Proposta da tarefa
+                      </button>
+                    </h5>
+                  </div>
+                  <div id="propostatarefa" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                    <div class="card-body">
+                                <object data='/cata/media/{{aplicado.algoritmo.programa.pdf}}'
+                                        type='application/pdf'
+                                        width='100%'
+                                        height='300px'>
+                                        <p class="bg-success">
+                                :-(((( SE VOCÊ ESTA LENDO ESTA MENSAGEM O SEU NAVEGADOR NÃO CONSEGUIU VISUALIZAR O PDF DA TAREFA. O PROBLEMA NÃO ESTA NO SISTEMA DE TAREFAS E SIM NO SEU NAVEGADOR DE INTERNET.</p>
+                                <p class="bg-success">  <a href="/cata/media/{{aplicado.algoritmo.programa.pdf}}"  target="_blank"> CLIQUE AQUI PARA FAZER O DOWNLOAD DO ARQUIVO PDF COM A TAREFA PARA RESOLUÇÃO.</a></p>
+                              </object>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <form action="{% url 'aluno:editaralgoritmo' aplicado.id %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
+
+
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                    <hr>
+
+                    #Entrada. Simulador de teclado.
+                    {% for codigo in aplicado.codigos_aplicado.all %}
+                        {% if codigo.ativo and codigo.proposta.arquivo == 'entrada.txt'%}
+                            <textarea id="id_entrada" name="entrada" rows="5" cols="62">{{codigo.conteudo}}</textarea>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                    interface.py</br>
+                    {% for codigo in aplicado.codigos_aplicado.all %}
+                        {% if codigo.ativo  and codigo.proposta.arquivo == 'interface.py' %}
+                            <textarea id="id_interface" name="interface" rows="5" cols="62">{{codigo.conteudo}}</textarea>
+                        {% endif %}
+                    {% endfor %}
+
+                    solucao.py</br>
+                    {% for codigo in aplicado.codigos_aplicado.all %}
+                        {% if codigo.ativo  and codigo.proposta.arquivo == 'solucao.py' %}
+                            <textarea id="id_solucao" name="solucao" rows="5" cols="62">{{codigo.conteudo}}</textarea>
+                        {% endif %}
+                    {% endfor %}
+
+                    #Saida. Simulador do Monitor ou Video</br>
+                    <textarea id="id_saida" name="saida" rows="5" cols="62">{{saida}}</textarea>
+
+                    <hr>
+                    Dados.txt</br>
+                    {% for codigo in aplicado.codigos_aplicado.all %}
+                        {% if codigo.ativo and codigo.proposta.arquivo == 'dados.txt'%}
+                            <textarea id="id_dados" name="dados" rows="5" cols="62">{{codigo.conteudo}}</textarea>
+                        {% endif %}
+                    {% endfor %}
+
+                    Relatorio.</br>
+                    <textarea id="id_relatorio" name="relatorio" rows="5" cols="62">{{relatorio}}</textarea>
+                    <hr>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                    <button type="submit" class="btn btn-success">
+                        SALVAR, EXECUTAR, ANALISAR E TESTAR O CÓDIGO.
+                    </button>
+                </div>
+            </div>
+        <form>
+
+            <div class="row">
+                <div class="col-sm-8 col-md-10">
+                    <hr>
+                    {% if output %}
+                      Erro no código:
+                      <pre>  {{output|linebreaksbr|safe}} </pre>
+                    {% else %}
+                      Sem erro no código.
+                    {% endif %}
+                    <hr>
+                    {% if passou_testes == None %}
+                        Sem testes.
+                    {% elif passou_testes %}
+                        Passou em todos os testes.
+                    {% else %}
+                        Não passou nos testes.
+                    {% endif %}
+                    <hr>
+
+                </div>
+            </div>
+
+    </div> <!-- /container -->
+
+
+{%else%}
+</br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+{%endif%}
+
+
+
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById("id_interface"), {
+          lineNumbers: true,
+          mode: "python",
+          matchBrackets: true,
+          lineWiseCopyCut: false,
+          tabSize: 2,
+        });
+        editor.on("beforeChange", function(_, change) { if (change.origin == "paste") change.cancel() })
+        editor.setOption("extraKeys", {
+      Tab: function(cm) {
+        var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+        cm.replaceSelection(spaces);
+      }
+    });
+
+        var editor2 = CodeMirror.fromTextArea(document.getElementById("id_solucao"), {
+          lineNumbers: true,
+          mode: "python",
+          matchBrackets: true,
+          lineWiseCopyCut: false,
+          tabSize: 2,
+          indentUnit:2,
+        });
+        editor2.on("beforeChange", function(_, change) { if (change.origin == "paste") change.cancel() })
+        editor2.setOption("extraKeys", {
+      Tab: function(cm) {
+        var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+        cm.replaceSelection(spaces);
+      }
+    });
+
+        var editor3 = CodeMirror.fromTextArea(document.getElementById("id_entrada"), {
+          lineNumbers: true,
+          mode: "text",
+          matchBrackets: true,
+          lineWiseCopyCut: false,
+          tabSize: 2,
+        });
+        editor3.setOption("extraKeys", {
+      Tab: function(cm) {
+        var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+        cm.replaceSelection(spaces);
+      }
+    });
+
+    var editor3 = CodeMirror.fromTextArea(document.getElementById("id_dados"), {
+      lineNumbers: true,
+      mode: "text",
+      matchBrackets: true,
+      lineWiseCopyCut: false,
+      tabSize: 2,
+    });
+    editor3.setOption("extraKeys", {
+    Tab: function(cm) {
+    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+    cm.replaceSelection(spaces);
+    }
+    });
+
+    var editor3 = CodeMirror.fromTextArea(document.getElementById("id_saida"), {
+      lineNumbers: true,
+      mode: "text",
+      matchBrackets: true,
+      lineWiseCopyCut: false,
+      tabSize: 2,
+    });
+    editor3.setOption("extraKeys", {
+    Tab: function(cm) {
+    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+    cm.replaceSelection(spaces);
+    }
+    });
+
+    var editor3 = CodeMirror.fromTextArea(document.getElementById("id_relatorio"), {
+      lineNumbers: true,
+      mode: "text",
+      matchBrackets: true,
+      lineWiseCopyCut: false,
+      tabSize: 2,
+    });
+    editor3.setOption("extraKeys", {
+    Tab: function(cm) {
+    var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+    cm.replaceSelection(spaces);
+    }
+    });
+
+    </script>
+
+
+
+{%endblock%}

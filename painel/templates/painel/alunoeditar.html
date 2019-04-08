@@ -1,0 +1,75 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:conhecimento' %}"> Conhecimentos </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 1-->
+
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Lista de seus alunos.</h3>
+                Caso tenha alguma informação errada selecione o aluno, coluna apagar, pois ele será apagado e você pode criar outro com os dados corretos.</br>
+                Caso não queira apagar os dados do aluno e todas as suas atividades, basta desativá-lo, na coluna da direita. Assim ele não será visto, nem terá acesso a este sistema.
+                <form action="{% url 'painel:alunoeditar' id %}" method="POST" enctype="multipart/form-data">{%csrf_token%}
+                    <table class="table table-hover table-sm">
+                    <thead>
+                        <tr>
+                        <th>Apagar</th>
+                        <th>Matrícula/Login acesso</th>
+                        <th>Nome</th>
+                        <th>Turmas</th>
+                        <th>Cadastrado em</th>
+                        <th>Ultimo acesso</th>
+                        <th>Desativado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                    {% for aluno in alunos %}
+                        <tr>
+                        <td><input type="checkbox" name="alunos" value="{{aluno.id}}"></input></td>
+                        <td>{{aluno.username}}</td>
+                        <td>{{aluno.last_name}}</td>
+                        <td>
+                            {% for turma in aluno.na_turma.all%}
+                                {% if turma.conhecimento.usuario == user%}
+                                    {{turma.conhecimento.nome}}->{{turma.nome}}</br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{aluno.date_joined}}</td>
+                        <td>{{aluno.last_login}}</td>
+                        <td><input type="checkbox" name="desativados" value="{{aluno.id}}" {%if not aluno.is_active %} checked	{%endif%}></input></td>
+
+                        </tr>
+                    {% endfor %}
+                        </tbody>
+                        </table>
+                    <input type="submit" value="Enviar informações" />
+                </form>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        {%else%}
+            </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+        {%endif%}
+
+    {%endblock%}

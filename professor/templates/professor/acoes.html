@@ -1,0 +1,43 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:acoes' %}"> Ações </a> |
+                   <a href="{% url 'painel:sair' %}"> Sair </a> )
+                </small>
+                <small> </br>
+                  Para qualquer dúvida e suporte entre em contato com: cata.pro.br@gmail.com
+                 </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+              <a href="{% url 'professor:conhecimento' %}"> <h3>Gerenciar Conhecimentos e Turmas</h3> </a>
+              <a href="{% url 'professor:indice' %}"><h3>Gerenciar Índices e Situações</h3> </a>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+
+    {%else%}
+        </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+{%endblock%}

@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  	<title>Destroydrop &raquo; Javascripts &raquo; Tree</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="StyleSheet" href="dtree.css" type="text/css" />
+	<script type="text/javascript" src="dtree.js"></script>
+    
+    <title>Ação </title>
+  </head>
+<script type='text/javascript'>
+  function submitform(nome){
+    //document.forms["acao"].action="lista.php?a=".nome;
+    document.getElementById("nivel").value = nome;
+    //alert("Você mora em " + nome);
+    document.forms["acao"].submit();
+  }
+</script>
+
+<body>
+
+<h1><a href="/">DestroydropOrgano</a> &raquo; <a href="/javascripts/">Javascripts</a> &raquo; <a href="/javascripts/tree/">Tree</a></h1>
+
+<h2>Example</h2>
+<form name='acao' method='post' action='lista.php' enctype='multipart/form-data'>
+<input type='hidden' name='nivel' id='nivel' value='111'></input>
+<div class="dtree">
+
+	<p><a href="javascript: d.openAll();">open all</a> | <a href="javascript: d.closeAll();">close all</a></p>
+
+	<script type="text/javascript">
+		<!--
+
+		d = new dTree('d');
+		d.add(0,-1,'My example tree');
+		d.add(1,0,"Node 1",'example01.html');
+		d.add(2,0,'Node 2','api.html');
+		d.add(3,1,'Node 1.1','javascript:submitform(999)');
+		d.add(4,0,'Node 3','example01.html');
+		d.add(5,3,'Node 1.1.1','javascript:submitform(9991)','aaa','','img/cd.gif','img/cd.gif','false');
+		d.add(6,5,'Node 1.1.1.1a','example01.html','','','','','false');
+		d.add(7,0,'Node 4','example01.html');
+		d.add(8,1,'Node 1.2','example01.html');
+		d.add(9,0,'My Pictures','example01.html','Pictures I\'ve taken over the years','','','img/imgfolder.gif');
+		d.add(10,9,'The trip to Iceland','example01.html','Pictures of Gullfoss and Geysir');
+		d.add(11,9,'Mom\'s birthday','example01.html');
+		d.add(12,0,'Recycle Bin','example01.html','','','img/trash.gif');
+
+		document.write(d);
+
+		//-->
+	</script>
+
+</div>
+<a href=javascript:submitform('lista.php?a=999') > vai </a>
+</form>
+<p><a href="mailto&#58;drop&#64;destroydrop&#46;com">&copy;2002-2003 Geir Landr&ouml;</a></p>
+
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:conhecimento' %}"> Conhecimentos </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 1-->
+
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Anexos a serem corrigidos.</h3>
+                <form action="{% url 'tarefa:anexocorrigir2' %}" method="POST" enctype="multipart/form-data">{%csrf_token%}
+
+                {% for aplicada in aplicadas %}
+                    Aluno : {{aplicada.usuario}}</br>
+                    Avaliação : {{aplicada.questao.avaliacao.nome}}</br>
+                    Problema : {{aplicada.questao.problema.referencia}} - {{aplicada.questao.problema.descricao}}</br>
+                    {% for anexo in aplicada.anexos_aplicada.all %}
+                        {%if anexo.anexo %}
+                          Letra {{anexo.arquivo.letra}}={{anexo.nota}}.
+                          Deixe marcado para pontuar <input type="checkbox" checked name="corrigidos" value="{{anexo.id}}" title='Se marcado esta correto nota será 1'></input>.
+                          <a href='/cata/media{{anexo.anexo}}'  title='Clique para ver'>[Ver arquivo]</a>. Imagem :
+          				        <img src="/cata/media{{anexo.anexo}}" width="300" height="300"></img></br>
+                        {%else%}
+                          Letra {{anexo.arquivo.letra}}={{anexo.nota}}. NADA FOI ENVIADO.</br>
+                        {%endif%}
+                    {% endfor %}
+                    <hr style="background-color: red; height: 4px; border: 0;">
+                {% endfor %}
+                <input type="submit" value="Enviar informações" />
+                </form>
+
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        {%else%}
+            </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+        {%endif%}
+
+    {%endblock%}

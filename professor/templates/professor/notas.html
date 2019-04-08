@@ -1,0 +1,186 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:acoes' %}"> Ações </a> |
+                   <a href="{% url 'painel:sair' %}"> Sair </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        <!-- Notas por Questão -->
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Notas por Questão</h3>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="CopyToClipboard('Table1')">Clique aqui e cole na planilha com (CTRL-V)</button>
+
+                <div id="Table1">
+                <small>
+                <table class="table table-hover table-sm">
+                    <thead>
+                      <tr>
+                        <th>Inst.</th>
+                        <th>Prof</th>
+                        <th>Conh.</th>
+                        <th>Turma</th>
+                        <th>Aluno</th>
+                        <th>Avaliação</th>
+                        <th>AvNota</th>
+                        <th>QuestãoID</th>
+                        <th>Questão</th>
+                        <th>QtNota</th>
+                        <!-- <th>TtSolucao</th>
+                        <th>TtRelatorio</th>
+                        <th>TtAnexo</th> -->
+                        <th>Solução*</th>
+                        <th>Relatório*</th>
+                        <th>Anexo*</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for conhecimento in conhecimentos %}
+                        {% if conhecimento.ativo %}
+                            {% for turma in conhecimento.turmas.all %}
+                                {% for aluno in turma.alunos.all %}
+                                    {% for aplicada in aluno.aplicadas_usuario.all %}
+                                        {% if aplicada.ativo and aplicada.questao.ativo and aplicada.questao.problema.ativo and aplicada.questao.avaliacao.ativo and aplicada.questao.avaliacao.turma.id == turma.id %}
+                                            <tr>
+                                            <td>{{conhecimento.instituicao.nome}}</td>
+                                            <td>{{conhecimento.usuario.last_name}}</td>
+                                            <td>{{conhecimento.nome}}</td>
+                                            <td>{{turma.nome}}</td>
+                                            <td>{{aluno.last_name}}-{{aluno.username}}</td>
+                                            <td>{{aplicada.questao.avaliacao.nome}}</td>
+                                            <td>{{aplicada.questao.avaliacao.nota}}</td>
+                                            <td><small>{{aplicada.questao.numero}} | {{aplicada.questao.id}}</small></td>
+                                            <td>{{aplicada.questao.problema.referencia}} | {{aplicada.questao.problema.descricao}}</td>
+                                            <td>{{aplicada.questao.nota}}</td>
+                                            <!-- <td>{{aplicada.get_total_solucao}}</td>
+                                            <td>{{aplicada.get_total_relatorio}}</td>
+                                            <td>{{aplicada.get_total_anexo}}</td> -->
+                                            <td>=
+                                            {% for solucao in aplicada.solucoes_aplicada.all %}
+                                            +{{solucao.nota}}
+                                            {% endfor %}</td>
+                                            <td>=
+                                            {% for relatorio in aplicada.relatorios_aplicada.all %}
+                                            +{{relatorio.nota}}
+                                            {% endfor %}</td>
+                                            <td>=
+                                            {% for anexo in aplicada.anexos_aplicada.all %}
+                                            +{{anexo.nota}}
+                                            {% endfor %}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% for aplicado in aluno.aplicados_usuario.all %}
+                                        {% if aplicado.ativo and aplicado.algoritmo.ativo and aplicado.algoritmo.programa.ativo and aplicado.algoritmo.avaliacao.ativo and aplicado.algoritmo.avaliacao.turma.id == turma.id %}
+                                            <tr>
+                                            <td>{{conhecimento.instituicao.nome}}</td>
+                                            <td>{{conhecimento.usuario.last_name}}</td>
+                                            <td>{{conhecimento.nome}}</td>
+                                            <td>{{turma.nome}}</td>
+                                            <td>{{aluno.last_name}}-{{aluno.username}}</td>
+                                            <td>{{aplicado.algoritmo.avaliacao.nome}}</td>
+                                            <td>{{aplicado.algoritmo.avaliacao.nota}}</td>
+                                            <td><small>{{aplicado.algoritmo.numero}} | {{aplicado.algoritmo.id}}</small></td>
+                                            <td>{{aplicado.algoritmo.programa.referencia}}</td>
+                                            <td>{{aplicado.algoritmo.nota}}</td>
+                                            <!-- <td>{{aplicado.get_total_solucao}}</td>
+                                            <td>{{aplicado.get_total_relatorio}}</td>
+                                            <td>{{aplicado.get_total_anexo}}</td> -->
+                                            <td>=
+                                            {% for codigo in aplicado.codigos_aplicado.all %}
+                                            +{{codigo.nota}}
+                                            {% endfor %}</td>
+                                            <td></td>
+                                            <td></td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </small>
+                <small>Observação: * Nas colunas Solução, Relatório e Anexo a palavra 'None' significa que a letra da referida questão não foi corrigida pelo professor.</small>
+                </div><!-- copy table-->
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        <!-- Notas por aluno -->
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <hr>
+                <h3>Notas por aluno</h3>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="CopyToClipboard('Table2')">Clique aqui e cole na planilha com (CTRL-V)</button>
+                <div id="Table2">
+                <small>
+                <table  class="table table-hover table-sm">
+                    <thead>
+                      <tr>
+                        <th>Inst.</th>
+                        <th>Prof</th>
+                        <th>Conh.</th>
+                        <th>Turma</th>
+                        <th>Questões</th>
+                        <th>Aluno</th>
+                        <th>Matricula</th>
+                        <th>Nota*</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for linha in notaporaluno %}
+                        <tr>
+                            <td>{{linha.0}}</td>
+                            <td>{{linha.1}}</td>
+                            <td>{{linha.2}}</td>
+                            <td>{{linha.3}}</td>
+                            <td>{{linha.6}}</td>
+                            <td>{{linha.4}}</td>
+                            <td>{{linha.5}}</td>
+                            <td>{{linha.7}}</td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </small>
+            <small>Observação: * A coluna Nota compreende o cálculo: Nota=NotaAvaliacao*NotaQuestao*(NotaSolução+NotaRelatorio+NotaAnexo)</small>
+            </div> <!-- copy table-->
+            <hr>
+            </div>
+            </div>
+            </br></br>
+            <h4>Outras funções:</h4>
+            Criar nova senha. Ao clicar vc será redirecionado para informar nova senha, a primeira informada será salva: <a href={% url 'painel:senhanova'%} title='Criar nova senha'> [nova senha]</a>.
+        </div> <!-- /container 2-->
+
+    {%else%}
+        </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+{%endblock%}

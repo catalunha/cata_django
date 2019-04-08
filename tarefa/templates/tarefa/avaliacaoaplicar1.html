@@ -1,0 +1,47 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:conhecimento' %}"> Conhecimentos </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 1-->
+
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Lista de alunos da turma {{avaliacao.turma.conhecimento.nome}}->{{avaliacao.turma.nome}}.</h3>
+                Selecione os alunos que farão a avaliação: {{avaliacao.nome}}.</br></br>
+                <form action="{% url 'tarefa:avaliacaoaplicar2' id %}" method="POST" enctype="multipart/form-data">{%csrf_token%}
+                {% for aluno in alunos %}
+                    <input type="checkbox" checked name="alunos" value="{{aluno.id}}"></input>
+                    {{aluno.username}} {{aluno.last_name}}</br>
+                {% endfor %}
+                <hr>
+                <input type="submit" value="Enviar informações" />
+                </form>
+
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        {%else%}
+            </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+        {%endif%}
+
+    {%endblock%}

@@ -1,0 +1,70 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:indice' %}"> Índice </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+
+        <!-- Gerenciar Índices e Situações -->
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+              <h3>Simulações do problema: </h3>
+              <h4>{{problema.referencia}} > {{problema.descricao}}</h4>
+                <div class="dtree">
+                   <small><a href="javascript: e.openAll();">Expandir tudo</a> | <a href="javascript: e.closeAll();">Contrair tudo</a></small>
+                   <script type="text/javascript">
+                    e = new dTree('e');
+                            e.add(0,-1,'{{problema.referencia}}: {{problema.descricao}}');
+                            // e.add("{{problema.id}}_id","0","Problema id: {{problema.id}}");
+                            // e.add("{{problema.id}}_descricao","0","Descrição: {{problema.descricao}}");
+                            e.add("{{problema.id}}_ativo","0","Ativo: {{problema.ativo}}");
+                            e.add("{{problema.id}}_ver","0","Ver: <a href='/cata/media/{{problema.pdf}}'  title='Clique para ver pdf da questão'>  <i class='fas fa-eye'></i></a>");
+                            e.add("{{problema.id}}_simulacoes","0","Simulações: {{problema.simulacoes.count}} |  <a href={% url 'situacao:simulacaoapagartodas' problema.id %} title='Apagar todas as simulações desta situação. Não apague simulações de problemas já aplicados.'> <i class='far fa-trash-alt'></i> </a> | <a href={% url 'situacao:simulacaonovo' problema.id %} title='nova simulação para esta situacao'> <i class='fas fa-plus'></i></a> | <a href={% url 'situacao:simulacaoimportar' problema.id %} title='importar simulações de arquivo'> <i class='fas fa-download'></i></a>");
+                            {% for simulacao in problema.simulacoes.all %}
+                                e.add("{{simulacao.id}}","{{problema.id}}_simulacoes","{{simulacao.id}} : {{simulacao.editado_em|date:'d-m-Y H:i'}} |  <a href={% url 'situacao:simulacaoapagar' simulacao.id %} title='Clique para apagar esta simulação. Não apague simulações de problemas já aplicados.'> <i class='far fa-trash-alt'></i> </a> | <a href={% url 'situacao:vlraleatnovo' simulacao.id %} title='Clique para novo Valor Aleatório'> <i class='fas fa-sliders-h'></i></a> | <a href={% url 'situacao:respostanovo' simulacao.id %} title='Clique para nova Resposta'> <i class='fas fa-dollar-sign'></i></a> |  <a href={% url 'situacao:anexonovo' simulacao.id %} title='Clique para novo Arquivo'> <i class='fas fa-chart-line'></i></a> |  <a href={% url 'situacao:textonovo' simulacao.id %} title='Clique para novo Texto'> <i class='fas fa-book'></i></a>");
+                                {% for valoraleatorio in simulacao.valores_aleatorios.all %}
+                                    e.add("{{valoraleatorio.id}}","{{simulacao.id}}","Valor Aleatorio: {{valoraleatorio.nome}}={{valoraleatorio.valor}} <a href={% url 'situacao:vlraleateditar' valoraleatorio.id %} title='Clique para editar este Valor Aleatório'>  <i class='fas fa-pencil-alt'></i></a>");
+                                {% endfor %}
+                                {% for resposta in simulacao.respostas.all %}
+                                    e.add("{{resposta.id}}","{{simulacao.id}}","Resposta: {{resposta.letra}}={{resposta.valor}} <a href={% url 'situacao:respostaeditar' resposta.id %} title='Clique para editar esta Resposta'> <i class='fas fa-pencil-alt'></i></a>");
+                                {% endfor %}
+                                {% for arquivo in simulacao.arquivos.all %}
+                                    e.add("{{arquivo.id}}","{{simulacao.id}}","Arquivo: {{arquivo.letra}} {% if arquivo.arquivo %} <a href='/cata/media/{{arquivo.arquivo}}'  title='Clique para ver'> <i class='fas fa-eye'></i></a> {% endif %} | <a href={% url 'situacao:anexoeditar' arquivo.id %} title='Clique para editar este arquivo'>  <i class='fas fa-pencil-alt'></i></a>");
+                                {% endfor %}
+                                {% for texto in simulacao.textos.all %}
+                                    e.add("{{texto.id}}","{{simulacao.id}}","Texto: {{texto.letra}} {% if texto.texto %} ... {% endif %}  <a href={% url 'situacao:textoeditar' texto.id %} title='Clique para editar este texto'>  <i class='fas fa-pencil-alt'></i></a>");
+                                {% endfor %}
+                            {% endfor %}
+
+                    document.write(e);
+                    </script>
+                </div>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+
+    {%else%}
+        </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+{%endblock%}

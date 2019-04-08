@@ -1,0 +1,60 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:indice' %}"> Índice </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 1-->
+
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Importar Simulações</h3>
+                Use a seguinte seguencia:</br>
+                Valores Aleatorios|Respostas|Arquivos|Textos</br>
+                Use o seguinte formato:</br>
+                Nome1=Valor1,Nome2=Valor2|a=Valor1,b=Valor2|c,d|e,f</br>
+                Os valores aletórios tem o nome e a quantidade que vc desejar.</br>
+                As respostas seguem as letras do alfabeto com seu respectivo valor se texto não precisa de aspas.</br>
+                Os arquivos e textos tem apenas letras.</br>
+                A linha separa as simulações. A barra '|' os tipos. E a virgula ',' os valores ou letras.</br>
+                Exemplo completo:</br>
+                N1=1.0000,N2=2.0000,N3=3.0000,N4=4.0000|a=5.0000,b=6.0000,c=7.0000|d,e|f</br>
+                Este problema tem 4 valores aleatórios, 3 respostas, 2 arquivos e 1 relatorio. As letras podem repetir</br>
+                Nesta seguencia e formato o problema pode ter quantas variaveis aleatorias e quantas letras quiser. </br>
+                Se faltar um item deixe a barra do campo.</br>
+                Exemplo faltando Valores areatorios: |a=1|b|c</br>
+                Exemplo faltando Valores areatorios, arquivos e textos: |a=1||</br>
+                Exemplo faltando Valores areatorios e arquivos: |a=1|b|</br>
+                <form action="{% url 'situacao:simulacaoimportar' id %}" method="POST" enctype="multipart/form-data">{%csrf_token%}
+
+                    <textarea rows="50" cols="200" name='simulacoes'> </textarea></br>
+
+                    <input type="submit" value="Enviar informações" />
+                </form>
+
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        {%else%}
+            </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+        {%endif%}
+
+    {%endblock%}

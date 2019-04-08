@@ -1,0 +1,58 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                    ( <a href="{% url 'professor:conhecimento' %}"> Conhecimentos </a> )
+                </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 1-->
+
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <h3>Relatorios a serem corrigidos.</h3>
+                <form action="{% url 'tarefa:relatoriocorrigir2' %}" method="POST" enctype="multipart/form-data">{%csrf_token%}
+
+                {% for aplicada in aplicadas %}
+                    Aluno : {{aplicada.usuario}}</br>
+                    Avaliação : {{aplicada.questao.avaliacao.nome}}</br>
+                    Problema : {{aplicada.questao.problema.referencia}} - {{aplicada.questao.problema.descricao}}</br>
+                    {% for relatorio in aplicada.relatorios_aplicada.all %}
+                        <hr style="background-color: green; height: 1px; border: 0;">
+                        {%if relatorio.relatorio|length > 100 %}
+                          Letra {{relatorio.texto.letra}}={{relatorio.nota}}.
+                          Deixe marcado para pontuar <input type="checkbox"  checked	name="corrigidos" value="{{relatorio.id}}"></input>
+                          {{relatorio.relatorio|linebreaks}}
+                        {%else%}
+                        Letra {{relatorio.texto.letra}}={{relatorio.nota}}. NADA FOI ENVIADO.</br>
+                        {%endif%}
+                    {% endfor %}
+                    <hr style="background-color: red; height: 4px; border: 0;">
+                {% endfor %}
+                <input type="submit" value="Enviar informações" />
+                </form>
+
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        {%else%}
+            </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+        {%endif%}
+
+    {%endblock%}

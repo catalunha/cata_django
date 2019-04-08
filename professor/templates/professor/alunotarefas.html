@@ -1,0 +1,114 @@
+{%extends 'base.html' %}
+
+{%load static from staticfiles %}
+
+{% block titulo%}
+    CAT@::Ações Prof
+{%endblock%}
+{% block corpo%}
+
+{% include 'cabecalho.html' %}
+
+    {%if user.is_authenticated %}
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+                Olá {{user.get_cargo_display}} {{user.last_name}}. Hoje é {% now "d-m-Y H:i"%}.
+                <small>
+                  ( <a href="{% url 'professor:conhecimento' %}"> Conhecimentos </a> )
+
+                 </small>
+                <hr>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+        <!-- Gerenciar Conhecimentos e Turmas: -->
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-sm-10 col-md-10">
+              <h3>Ver tarefas deste aluno(a):</h3>
+              <h4>{{aluno}}</h4>
+                <div class="dtree">
+                   <small><a href="javascript: d.openAll();">Expandir tudo</a> | <a href="javascript: d.closeAll();">Contrair tudo</a></small>
+                   <script type="text/javascript">
+                    d = new dTree('d');
+                    d.add(0,-1,"{{turma}}");
+                    d.add('1','0','Tarefas');
+                                {% for aplicada in aluno.aplicadas_usuario.all %}
+                                    {% if aplicada.questao.avaliacao.turma.id == turma.id %}
+                                        d.add('{{aplicada.id}}','1','{{aplicada.questao.avaliacao.nome}} | {{aplicada.questao.problema.referencia}}: {{aplicada.questao.problema.descricao}} | Tarefa: {{aplicada.questao.numero}}');
+
+
+                                        d.add("{{aplicada.id}}_vrat","{{aplicada.id}}","Problema V.R.A.T: {{aplicada.questao.problema.simulacoes.all.0.valores_aleatorios.count}}.{{aplicada.questao.problema.simulacoes.all.0.respostas.count}}.{{aplicada.questao.problema.simulacoes.all.0.arquivos.count}}.{{aplicada.questao.problema.simulacoes.all.0.textos.count}}");
+                                        d.add("{{aplicada.id}}_ttsolucao","{{aplicada.id}}","Total Solução: {{aplicada.get_total_solucao}}");
+                                        d.add("{{aplicada.id}}_ttanexo","{{aplicada.id}}","Total Anexo: {{aplicada.get_total_anexo}}");
+                                        d.add("{{aplicada.id}}_ttrelatorio","{{aplicada.id}}","Total Relatorio: {{aplicada.get_total_relatorio}}");
+
+                                        {% for solucao in aplicada.solucoes_aplicada.all %}
+                                            d.add('{{solucao.id}}','{{aplicada.id}}','Solução {{solucao.resposta.letra}}: Nota={{solucao.nota}} Sua={{solucao.solucao}} Gab={{solucao.resposta.valor}}');
+                                        {% endfor %}
+                                        {% for anexo in aplicada.anexos_aplicada.all %}
+                                            d.add("{{anexo.id}}","{{aplicada.id}}","Anexo {{anexo.arquivo.letra}}: Nota={{anexo.nota}} Sua {% if anexo.anexo %} <a href='/cata/media/{{anexo.anexo}}'  title='Clique para ver'><i class='fas fa-eye'></i></a> {% endif %} Gab {% if anexo.arquivo.arquivo %} <a href='/cata/media/{{anexo.arquivo.arquivo}}'  title='Clique para ver'><i class='fas fa-eye'></i></a> {% endif %}");
+                                        {% endfor %}
+                                        {% for relatorio in aplicada.relatorios_aplicada.all %}
+                                            d.add("{{relatorio.id}}","{{aplicada.id}}","Relatorio {{relatorio.texto.letra}}: Nota={{relatorio.nota}} Sua {% if relatorio.relatorio %}<a href={% url 'tarefa:relatorio' relatorio.id %}  title='Clique para ver'><i class='fas fa-eye'></i></a> {% endif %} Gab {% if relatorio.texto.texto %}<a href={% url 'situacao:texto' relatorio.texto.id %}  title='Clique para ver'><i class='fas fa-eye'></i></a> {% endif %}");
+                                        {% endfor %}
+
+                                        d.add("{{aplicada.id}}_inicio","{{aplicada.id}}","Avaliação Inicio: {{aplicada.questao.avaliacao.inicio|date:'d-m-Y H:i'}}");
+                                        d.add("{{aplicada.id}}_fim","{{aplicada.id}}","Avaliação Fim: {{aplicada.questao.avaliacao.fim|date:'d-m-Y H:i'}}");
+                                        d.add("{{aplicada.id}}_privada","{{aplicada.id}}","Avaliação Privada: {{aplicada.questao.avaliacao.privada}}");
+                                        d.add("{{aplicada.id}}_ativo","{{aplicada.id}}","Avaliação ativo: {{aplicada.questao.avaliacao.ativo}}");
+                                        d.add("{{aplicada.id}}_nota","{{aplicada.id}}","Avaliação Nota: {{aplicada.questao.avaliacao.nota}}");
+                                        d.add('{{aplicada.id}}_nota','{{aplicada.id}}','Questão Nota: {{aplicada.questao.nota}}');
+                                        d.add('{{aplicada.id}}_temtativa','{{aplicada.id}}','Questão Tentativa: {{aplicada.questao.tentativa}}');
+                                        d.add("{{aplicada.id}}_tempo","{{aplicada.id}}","Questão Tempo: {{aplicada.questao.tempo|date:'H:i'}}");
+                                        d.add("{{aplicada.id}}_ativo","{{aplicada.id}}","Aplicada ativo:{{aplicada.ativo}} <a href={% url 'tarefa:aplicadaeditar' aplicada.id %}  title='Clique para alterar situacao ativa/desativa'><i class='fas fa-retweet'></i></a>");
+                                        d.add("{{aplicada.id}}_pdf","{{aplicada.id}}","PDF <a href='/cata/media/{{aplicada.questao.problema.pdf}}'  title='Clique para ver'><i class='fas fa-eye'></i></a>");
+                                        {% for status in aplicada.status.all %}
+                                            d.add("{{status.id}}","{{aplicada.id}}","Status ativo: {{status.ativo}}");
+                                            d.add("{{status.id}}_iniciou","{{aplicada.id}}","Status Inicio: {{status.iniciou|date:'d-m-Y H:i'}}");
+                                            d.add("{{status.id}}_tempo","{{aplicada.id}}","Status Tempo: {{status.tempo|time:'H:i'}}");
+                                            d.add("{{status.id}}_tentativa","{{aplicada.id}}","Status Tentativas: {{status.tentativa}}");
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% for aplicado in aluno.aplicados_usuario.all %}
+                                    {% if aplicado.algoritmo.avaliacao.turma.id == turma.id %}
+                                        d.add('{{aplicado.id}}','1','{{aplicado.algoritmo.avaliacao.nome}} | {{aplicado.algoritmo.programa.referencia}}: {{aplicado.algoritmo.programa.descricao}} | Programa: {{aplicado.algoritmo.numero}}');
+
+                                        d.add("{{aplicado.id}}_ttcodigo","{{aplicado.id}}","Total Codigo: {{aplicado.get_total_codigo}}");
+                                        {% for codigo in aplicado.codigos_aplicado.all %}
+                                            d.add("{{codigo.id}}","{{aplicado.id}}","{{codigo.proposta.arquivo}}: Nota={{codigo.nota}} Sua {% if codigo.conteudo %} <a href={% url 'tarefa:codigo' codigo.id %}  title='Clique para ver'><i class='fas fa-eye'></i></a> {% endif %} Gab {% if codigo.proposta.conteudo %} <a href={% url 'situacao:proposta' codigo.proposta.id %}  title='Clique para ver'><i class='fas fa-eye'></i></a> {% endif %}");
+                                        {% endfor %}
+
+                                        d.add("{{aplicado.id}}_inicio","{{aplicado.id}}","Avaliação Inicio: {{aplicado.algoritmo.avaliacao.inicio|date:'d-m-Y H:i'}}");
+                                        d.add("{{aplicado.id}}_fim","{{aplicado.id}}","Avaliação Fim: {{aplicado.algoritmo.avaliacao.fim|date:'d-m-Y H:i'}}");
+                                        d.add("{{aplicado.id}}_privada","{{aplicado.id}}","Avaliação Privada: {{aplicado.algoritmo.avaliacao.privada}}");
+                                        d.add("{{aplicado.id}}_ativo","{{aplicado.id}}","Avaliação ativo: {{aplicado.algoritmo.avaliacao.ativo}}");
+                                        d.add("{{aplicado.id}}_nota","{{aplicado.id}}","Avaliação Nota: {{aplicado.algoritmo.avaliacao.nota}}");
+                                        d.add('{{aplicado.id}}_nota','{{aplicado.id}}','Programa Nota: {{aplicado.algoritmo.nota}}');
+                                        d.add("{{aplicado.id}}_tempo","{{aplicado.id}}","Programa Tempo: {{aplicado.algoritmo.tempo|date:'H:i'}}");
+                                        d.add("{{aplicado.id}}_ativo","{{aplicado.id}}","Aplicado ativo:{{aplicado.ativo}} <a href={% url 'tarefa:aplicadoeditar' aplicado.id %}  title='Clique para alterar situacao ativa'><i class='fas fa-retweet'></i></a>");
+                                        d.add("{{aplicado.id}}_pdf","{{aplicado.id}}","pdf: <a href='/cata/media/{{aplicado.algoritmo.programa.pdf}}'  title='Clique para ver'><i class='fas fa-eye'></i></a>");
+                                        {% for status in aplicado.status_aplicado.all %}
+                                            d.add("{{status.id}}","{{aplicado.id}}","Status ativo: {{status.ativo}}");
+                                            d.add("{{status.id}}_iniciou","{{aplicado.id}}","Status Inicio: {{status.iniciou|date:'d-m-Y H:i'}}");
+                                            d.add("{{status.id}}_tempo","{{aplicado.id}}","Status Tempo: {{status.tempo|time:'H:i'}}");
+                                        {% endfor %}
+                                        d.add("{{aplicado.id}}_testar","{{aplicado.id}}","Testar <a href={% url 'tarefa:codigotestar' aplicado.id %} title='Clique para testar codigo do aluno' ><i class='far fa-keyboard'></i></a>");
+                                    {% endif %}
+                                {% endfor %}
+                    document.write(d);
+                    </script>
+                </div>
+            </div>
+            </div>
+        </div> <!-- /container 2-->
+
+    {%else%}
+        </br></br>Acesso não permitido. Favor procurar o Professor desta turma.
+    {%endif%}
+
+{%endblock%}
