@@ -51,7 +51,7 @@
                                 d.add("{{turma.id}}_inicio","{{turma.id}}","Inicio: {{turma.inicio|date:'d-m-Y H:i'}}");
                                 d.add("{{turma.id}}_fim","{{turma.id}}","Fim: {{turma.fim|date:'d-m-Y H:i'}}");
                                 d.add("{{turma.id}}_numero","{{turma.id}}","Qde de questões/algoritmos: {{turma.questao}}");
-                                d.add("{{turma.id}}_alunos","{{turma.id}}","Alunos <a href={% url 'painel:alunonovo' turma.id %} title='Inserir novos alunos'> <i class='fas fa-plus'></i></a> | <a href={% url 'painel:alunoeditar' turma.id %} title='Editar meus alunos'> <i class='fas fa-pencil-alt'></i></a>");
+                                d.add("{{turma.id}}_alunos","{{turma.id}}","Alunos (turma.alunos.all.count) <a href={% url 'painel:alunonovo' turma.id %} title='Inserir novos alunos'> <i class='fas fa-plus'></i></a> | <a href={% url 'painel:alunoeditar' turma.id %} title='Editar meus alunos'> <i class='fas fa-pencil-alt'></i></a>");
                                 d.add("{{turma.id}}_avaliacoes","{{turma.id}}","Avaliações <a href={% url 'tarefa:avaliacaonovo' turma.id %} title='nova avaliação'> <i class='fas fa-plus'></i></a>");
                                 {% for aluno in turma.alunos.all %}
                                     {% if aluno.is_active %}

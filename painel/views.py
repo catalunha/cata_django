@@ -86,7 +86,7 @@ def alunoeditar(request,id):
 @login_required
 def senhanova(request):
     usuario=request.user
-    usuario.set_password('a12345678')
+    usuario.set_password('abc12345678abc')
     usuario.save()
     return HttpResponseRedirect(reverse('painel:index'))
 

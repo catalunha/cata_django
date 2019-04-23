@@ -23,8 +23,8 @@ class Instituicao(UUIDModelMixin, TimedModelMixin):
 class Conhecimento(UUIDModelMixin, TimedModelMixin, UserModelMixin):
     nome = models.CharField(verbose_name="Nome",max_length = 255,help_text='...')
     instituicao = models.ForeignKey(Instituicao,related_name="conhecimentos",on_delete = models.CASCADE,help_text='...')
-
     ativo = models.BooleanField(default = True,help_text='...')
+
     descricao = models.TextField(verbose_name="Descrição",blank=True,null=True,default=None,help_text='...')
     inicio = models.DateTimeField('Data de Início',default=timezone.now,null=True,blank=True,help_text='...')
     fim = models.DateTimeField('Data de Fim',default=timezone.now,null=True,blank=True,help_text='...')
@@ -42,8 +42,8 @@ class Turma(UUIDModelMixin, TimedModelMixin):
     nome = models.CharField("Nome",max_length = 255)
     conhecimento = models.ForeignKey(Conhecimento,related_name="turmas",on_delete = models.CASCADE)
     alunos = models.ManyToManyField(User,related_name="na_turma",limit_choices_to={'cargo':'aluno'},blank=True,help_text='...')
+    ativo = models.BooleanField(default = True,help_text='...')
 
-    ativo = models.BooleanField("Ativo",default = True,help_text='...')
     descricao = models.TextField("Descrição",blank=True,null=True,default=None)
     inicio = models.DateTimeField('Data de Início',default=timezone.now,null=True,blank=True,help_text='...')
     fim = models.DateTimeField('Data de Fim',default=datetime.now,null=True,blank=True,help_text='...')
