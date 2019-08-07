@@ -256,7 +256,7 @@ def editaralgoritmo(request,id):
             arqsaida= open(localmedia+'relatorio.txt',encoding='utf-8', mode='r')
             relatorio=arqsaida.read()
 
-        output=sstderr.decode("utf-8")
+        output=sstderr#.decode("utf-8")
         passou_testes=False
         for teste in aplicado.algoritmo.programa.testes.all():
             if teste.entrada and teste.saida :
