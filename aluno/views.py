@@ -203,7 +203,7 @@ def editaralgoritmo(request,id):
         return HttpResponseRedirect(reverse('aluno:atuais'))
 
     try:
-        cmd="ps axf | grep interface.py | grep -v grep | awk '{print \"kill -9 \" $1}' | sh"
+        cmd="ps axf | grep interface.dart | grep -v grep | awk '{print \"kill -9 \" $1}' | sh"
         execcmd(cmd, shell = True, timeout = 1)
     finally:
         pass
@@ -214,10 +214,10 @@ def editaralgoritmo(request,id):
             if codigo.proposta.arquivo == 'entrada.txt':
                 codigo.conteudo=valor
             valor = request.POST.get('interface')
-            if codigo.proposta.arquivo == 'interface.py':
+            if codigo.proposta.arquivo == 'interface.dart':
                 codigo.conteudo=valor
             valor = request.POST.get('solucao')
-            if codigo.proposta.arquivo == 'solucao.py':
+            if codigo.proposta.arquivo == 'solucao.dart':
                 codigo.conteudo=valor
             valor = request.POST.get('dados')
             if codigo.proposta.arquivo == 'dados.txt':
@@ -239,7 +239,7 @@ def editaralgoritmo(request,id):
                 arq.write('')
             arq.close()
         try:
-            cmd='python {0}interface.py < {0}entrada.txt > {0}saida.txt'.format(localmedia)
+            cmd='dart {0}interface.dart < {0}entrada.txt > {0}saida.txt'.format(localmedia)
             errorcode,sstdout,sstderr=execcmd(cmd, shell = True, timeout = 1)
         finally:
             pass
@@ -266,7 +266,7 @@ def editaralgoritmo(request,id):
                 arq.write(teste.saida)
                 arq.close()
                 try:
-                    cmd='python {0}interface.py < {0}{1}_entrada.txt > {0}{1}_teste.txt'.format(localmedia,teste.id)
+                    cmd='dart {0}interface.dart < {0}{1}_entrada.txt > {0}{1}_teste.txt'.format(localmedia,teste.id)
                     execcmd(cmd, shell = True, timeout = 1)
                 finally:
                     pass

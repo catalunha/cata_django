@@ -242,7 +242,7 @@ class Programa(UUIDModelMixin, TimedModelMixin):
 
 
 class Proposta(UUIDModelMixin, TimedModelMixin):
-    TIPO=(('interface.py','interface.py'),('solucao.py','solucao.py'),('entrada.txt','entrada.txt'),('dados.txt','dados.txt'),)
+    TIPO=(('interface.dart','interface.dart'),('solucao.dart','solucao.dart'),('entrada.txt','entrada.txt'),('dados.txt','dados.txt'),)
 
     programa = models.ForeignKey(Programa,related_name="propostas",on_delete = models.CASCADE)
     arquivo = models.CharField('Arquivo',max_length=25,choices=TIPO)

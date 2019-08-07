@@ -311,7 +311,7 @@ def codigotestar(request,id):
             arq.write('')
         arq.close()
     try:
-        cmd='python {0}interface.py < {0}entrada.txt > {0}saida.txt'.format(localmedia)
+        cmd='dart {0}interface.dart < {0}entrada.txt > {0}saida.txt'.format(localmedia)
         errorcode,sstdout,sstderr=execcmd(cmd, shell = True, timeout = 1)
     finally:
         pass
@@ -338,7 +338,7 @@ def codigotestar(request,id):
             arq.write(teste.saida)
             arq.close()
             try:
-                cmd='python {0}interface.py < {0}{1}_entrada.txt > {0}{1}_teste.txt'.format(localmedia,teste.id)
+                cmd='dart {0}interface.dart < {0}{1}_entrada.txt > {0}{1}_teste.txt'.format(localmedia,teste.id)
                 execcmd(cmd, shell = True, timeout = 1)
             finally:
                 pass

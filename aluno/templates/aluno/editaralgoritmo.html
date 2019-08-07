@@ -138,16 +138,16 @@
 
             <div class="row">
                 <div class="col-sm-8 col-md-10">
-                    interface.py</br>
+                    interface.dart</br>
                     {% for codigo in aplicado.codigos_aplicado.all %}
-                        {% if codigo.ativo  and codigo.proposta.arquivo == 'interface.py' %}
+                        {% if codigo.ativo  and codigo.proposta.arquivo == 'interface.dart' %}
                             <textarea id="id_interface" name="interface" rows="5" cols="62">{{codigo.conteudo}}</textarea>
                         {% endif %}
                     {% endfor %}
 
-                    solucao.py</br>
+                    solucao.dart</br>
                     {% for codigo in aplicado.codigos_aplicado.all %}
-                        {% if codigo.ativo  and codigo.proposta.arquivo == 'solucao.py' %}
+                        {% if codigo.ativo  and codigo.proposta.arquivo == 'solucao.dart' %}
                             <textarea id="id_solucao" name="solucao" rows="5" cols="62">{{codigo.conteudo}}</textarea>
                         {% endif %}
                     {% endfor %}
