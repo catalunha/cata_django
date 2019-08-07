@@ -180,7 +180,8 @@ def execcmd(args, cwd = None, shell = False, kill_tree = True, timeout = -1, env
             pids.extend(get_process_children(p.pid))
         for pid in pids:
             try:
-                kill(pid, SIGKILL)
+                import signal
+                kill(pid, signal.SIGKILL)
             except OSError:
                 pass
         return -9, '', ''
