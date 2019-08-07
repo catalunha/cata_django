@@ -1,5 +1,4 @@
 /media
 db.sqlite3
 *.pyc
-/cata/settings.py
-settings.py
+
