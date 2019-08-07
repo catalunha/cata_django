@@ -12,13 +12,13 @@ from tarefa.models import Avaliacao,Questao,Aplicada,Solucao,Relatorio,Anexo,Alg
 # ref.model = Variavel
 
 
-from django_markdown_ref import DjangoMarkdownRef
-ref = DjangoMarkdownRef()
-ref.model = Variavel
+# from django_markdown_ref import DjangoMarkdownRef
+# ref = DjangoMarkdownRef()
+# ref.model = Variavel
 
 
-import markdown
-opcoes_mark = ["markdown.extensions.extra","markdown.extensions.abbr","markdown.extensions.attr_list","markdown.extensions.def_list","markdown.extensions.fenced_code","markdown.extensions.footnotes","markdown.extensions.tables","markdown.extensions.smart_strong","markdown.extensions.admonition","markdown.extensions.codehilite","markdown.extensions.headerid","markdown.extensions.meta","markdown.extensions.nl2br","markdown.extensions.sane_lists","markdown.extensions.smarty","markdown.extensions.toc","markdown.extensions.wikilinks","mdx_math",ref]
+# import markdown
+# opcoes_mark = ["markdown.extensions.extra","markdown.extensions.abbr","markdown.extensions.attr_list","markdown.extensions.def_list","markdown.extensions.fenced_code","markdown.extensions.footnotes","markdown.extensions.tables","markdown.extensions.smart_strong","markdown.extensions.admonition","markdown.extensions.codehilite","markdown.extensions.headerid","markdown.extensions.meta","markdown.extensions.nl2br","markdown.extensions.sane_lists","markdown.extensions.smarty","markdown.extensions.toc","markdown.extensions.wikilinks","mdx_math",ref]
 
 class Ementa(UUIDModelMixin, TimedModelMixin):
     conhecimento = models.ForeignKey(Conhecimento,related_name="ementas",on_delete = models.CASCADE)
@@ -30,7 +30,8 @@ class Ementa(UUIDModelMixin, TimedModelMixin):
     @property
     def texto_md(self):
         #markdown.markdown(some_text, extensions=[MyExtension(), 'path.to.my.ext', 'markdown.extensions.footnotes'])
-        return markdown.markdown(self.texto, extensions=opcoes_mark)
+        # return markdown.markdown(self.texto, extensions=opcoes_mark)
+        return self.texto
 
     class Meta:
         verbose_name = "Ementa"
