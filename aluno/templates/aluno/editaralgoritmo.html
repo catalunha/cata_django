@@ -213,12 +213,12 @@
     <script>
         var editor = CodeMirror.fromTextArea(document.getElementById("id_interface"), {
           lineNumbers: true,
-          mode: "python",
+          mode: "dart",
           matchBrackets: true,
           lineWiseCopyCut: false,
           tabSize: 2,
         });
-        editor.on("beforeChange", function(_, change) { if (change.origin == "paste") change.cancel() })
+        // editor.on("beforeChange", function(_, change) { if (change.origin == "paste") change.cancel() })
         editor.setOption("extraKeys", {
       Tab: function(cm) {
         var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
@@ -228,13 +228,13 @@
 
         var editor2 = CodeMirror.fromTextArea(document.getElementById("id_solucao"), {
           lineNumbers: true,
-          mode: "python",
+          mode: "dart",
           matchBrackets: true,
           lineWiseCopyCut: false,
           tabSize: 2,
           indentUnit:2,
         });
-        editor2.on("beforeChange", function(_, change) { if (change.origin == "paste") change.cancel() })
+        // editor2.on("beforeChange", function(_, change) { if (change.origin == "paste") change.cancel() })
         editor2.setOption("extraKeys", {
       Tab: function(cm) {
         var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
